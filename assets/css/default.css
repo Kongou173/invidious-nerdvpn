@@ -882,10 +882,14 @@ i.icon.ion-md-jet:hover {
 
 /* Zooming */
 .pure-g:not(.h-box) > .pure-u-md-1-4 .h-box,
-.pure-g:not(.searchbar) > .searchbar,
 .pure-form-aligned {
     border-radius: 5px 5px 5px;
     padding: 12px;
+    transition: all 0.2s;
+}
+.pure-g:not(.searchbar) > .searchbar,{
+    border-radius: 5px 5px 5px;
+    padding: 12px 0 12px 0;
     transition: all 0.2s;
 }
 
