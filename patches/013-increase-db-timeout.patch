@@ -1,0 +1,13 @@
+diff --git a/src/invidious/yt_backend/connection_pool.cr b/src/invidious/yt_backend/connection_pool.cr
+index 0ac785e6..c71117f0 100644
+--- a/src/invidious/yt_backend/connection_pool.cr
++++ b/src/invidious/yt_backend/connection_pool.cr
+@@ -19,7 +19,7 @@ struct YoutubeConnectionPool
+   property! timeout : Float64
+   property pool : DB::Pool(HTTP::Client)
+ 
+-  def initialize(url : URI, @capacity = 5, @timeout = 5.0)
++  def initialize(url : URI, @capacity = 5, @timeout = 12.0)
+     @url = url
+     @pool = build_pool()
+   end

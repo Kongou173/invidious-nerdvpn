@@ -46,7 +46,7 @@ index 3dbeaf37..d84d03d0 100644
 @@ -1,4 +1,7 @@
  <div class="feed-menu">
 +    <a href="/donate" class="feed-menu-item pure-menu-heading">
-+        Donate
++        <%= translate(locale, "footer_donate_page") %>
 +    </a>
      <% feed_menu = env.get("preferences").as(Preferences).feed_menu.dup %>
      <% if !env.get?("user") %>
@@ -56,42 +56,33 @@ new file mode 100644
 index 00000000..0c7deecc
 --- /dev/null
 +++ b/src/invidious/views/donate.ecr
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,26 @@
 +<% content_for "header" do %>
 +<title>Donate - Invidious</title>
 +<% end %>
 +
 +<div class="h-box">
-+    <h2>Donate to YewTube</h2>
++    <h2>Donate to NerdVPN.de</h2>
 +    <h3>Why donating?</h3>
-+    <p>Every day YewTube handles 40 million requests and 2TB (2000GB) of bandwidth. All this traffic has a cost.</p>
-+    <p>By donating, you are helping me cover the costs and also improve the user experience because I'll be able to rent more powerful servers.</p>
-+    <p>I truly thank you if you consider donating to YewTube.</p>
++    <p>In order to provide the best Invidious experience possible, I have rented a very powerful dedicated server with 16 cores, 32 GiB RAM and a 2 GBit/s unmetered network connection. I also use 3 different, fully e2e-encrypted backup locations with a zero-dataloss backup strategy. All of this has its cost.</p>
++    <p>All donations will go directly into paying my monthly infrastructure costs (server, domain, backups).</p>
++    <p>Should the donations at any point fully cover the costs, I will invest the remaining directly into improving my infrastructure and thus improving the user experience.</p>
++    <p>Every little bit helps. Thank you very much for considering to donate!</p>
 +    <h3>Payment methods</h3>
-+    <h4>Credit/debit card and bank transfer</h4>
++    <h4>PayPal, credit/debit card and bank transfer</h4>
 +    <ul>
-+        <li>Liberapay (recurrent donation): <a href="https://liberapay.com/yewtube/">https://liberapay.com/yewtube/</a></li>
-+        <li>Ko-fi (one time donation): <a href="https://ko-fi.com/yewtube">https://ko-fi.com/yewtube</a></li>
++        <li>Ko-fi: <a href="https://ko-fi.com/weidenwiesel">https://ko-fi.com/weidenwiesel</a></li>
 +    </ul>
 +    <h4>Cryptocurrency</h4>
++    <p>I currently don't support donations via cryptocurrency, but you can donate to the team behind Invidious directly, if you'd like. I'm sure they'd love the support.</p>
 +    <ul>
-+        <li>Bitcoin: <a href="bitcoin:1fyoJKdFo5cDPt21CGHW2RDQtcktQU9cL">1fyoJKdFo5cDPt21CGHW2RDQtcktQU9cL</a> (Segwit compatible)</li>
-+        <li>Bitcoin cash: <a href="bitcoincash:qz6qvjt9m4wqrqhyet3v3gljrpnys3wl2yxz0jfuu2">qz6qvjt9m4wqrqhyet3v3gljrpnys3wl2yxz0jfuu2</a></li>
-+        <li>Ethereum: <a href="ethereum:0x52B72e00be486C03C9b09AA0D441ADE1EfA5d2CB">0x52B72e00be486C03C9b09AA0D441ADE1EfA5d2CB</a> (you can send any ERC20 token)</li>
-+        <li>Monero: <a href="monero:82VziQe69ynRNKZ2Bk7XcoYUA6Q1eRuPyGxV3gVWDju7EPkUXZE2oGTGWiah51cCKRMAmwTY11D6qcH3NpGtfdjcNccmXL5">82VziQe69ynRNKZ2Bk7XcoYUA6Q1eRuPyGxV3gVWDju7EPkUXZE2oGTGWiah51cCKRMAmwTY11D6qcH3NpGtfdjcNccmXL5</a></li>
-+        <li>Nano: <a href="nano:nano_3hrphgbgi4px1gfiftsphokukcj1tkk168it6xeetxpc9c7jt5e6i7kmjupi">nano_3hrphgbgi4px1gfiftsphokukcj1tkk168it6xeetxpc9c7jt5e6i7kmjupi</a></li>
-+        <li>Stellar: <a href="stellar:GB5LHWSIOM6BRO7CMWRMWVWJUGPCKVRAVINGUJHA7PYP3CHES2XCMDG5">GB5LHWSIOM6BRO7CMWRMWVWJUGPCKVRAVINGUJHA7PYP3CHES2XCMDG5</a></li>
-+        <li>Dogecoin: <a href="dogecoin:D6dsXSZEp1rkqvLAV41QxXTPPgvDSU2rjo">D6dsXSZEp1rkqvLAV41QxXTPPgvDSU2rjo</a></li>
-+        <li>Dash: <a href="dash:Xdtr4fFe3U56mmQVi3iC5aW2LRNRb95Gbg">Xdtr4fFe3U56mmQVi3iC5aW2LRNRb95Gbg</a></li>
-+        <li>Decred: <a href="dcr:DsY4tZLcikXjJwdLBFr2pYWgGPatY9y81cZ">DsY4tZLcikXjJwdLBFr2pYWgGPatY9y81cZ</a></li>
-+        <li>Binance coin: <a href="bnb:bnb10vd22k3ujp9ezjc6s8x7vqvuh02hlvcwqtsepq">bnb10vd22k3ujp9ezjc6s8x7vqvuh02hlvcwqtsepq</a> (you can send any BEP20 token)</li>
-+        <li>Litecoin: <a href="litecoin:ltc1qre3xwwjsnctpfrx6eu0y77nca3cwlhe8kzy27d">ltc1qre3xwwjsnctpfrx6eu0y77nca3cwlhe8kzy27d</a></li>
-+        <li>USD Coin: <a href="usdcoin:0xd415a7A9455DBf1a666F933c78A7325914E73C6b">0xd415a7A9455DBf1a666F933c78A7325914E73C6b</a> (ETH) - <a href="usdcoin:bnb10vd22k3ujp9ezjc6s8x7vqvuh02hlvcwqtsepq">bnb10vd22k3ujp9ezjc6s8x7vqvuh02hlvcwqtsepq</a> (BNB)</li>
++    <li>Bitcoin (BTC): <a href="bitcoin:bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr">bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr</a></li>
++    <li>Monero (XMR): <a href="monero:41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR">41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR</a></li>
++    <li>Ethereum (ETH): <a href="ethereum:0xD1F7E3Bfb19Ee5a52baED396Ad34717aF18d995B">0xD1F7E3Bfb19Ee5a52baED396Ad34717aF18d995B</a></li>
++    <li>Litecoin (LTC): <a href="litecoin:ltc1q8787aq2xrseq5yx52axx8c4fqks88zj5vr0zx9">ltc1q8787aq2xrseq5yx52axx8c4fqks88zj5vr0zx9</a><//li>
 +    </ul>
-+    <h4>Is your prefered payment method not listed?</h4>
-+    <p>Feel free to ask me by email at <code>donate[at]yewtu.be</code> to add it.</p>
++    <p>If you have any questions, feel free to contact me via matrix at: <i>@weidenwiesel:matrix.org</i></p>
 +</div>
 \ No newline at end of file
 -- 
-2.36.1
-
+2.26.1

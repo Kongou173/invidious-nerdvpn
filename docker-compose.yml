@@ -1,0 +1,536 @@
+x-volumes: &volumes
+  volumes:
+    - /var/run/redis/redis-server.sock:/invidious/redis-server.sock:rw
+
+services:
+  
+  # This service is for building the base image (patch.sh && build.sh)
+  invidious:
+    <<: *volumes
+    env_file:
+      - .env
+    profiles: ["base"]
+    cpus: ${INV_CPU_CORES}
+    mem_limit: "${INV_MEM_LIMIT}"
+    mem_reservation: "${INV_MEM_RESERVATION}"
+    image: "${INV_IMAGE}"
+    build:
+      context: build
+      dockerfile: docker/Dockerfile 
+    restart: "${INV_RESTART_POLICY}"
+    environment: &environment
+      INVIDIOUS_CONFIG: |
+        #force_resolve: ipv6
+        modified_source_code_url: "https://github.com/Sommerwiesel/invidious-nerdvpn"
+        hmac_key: 
+        db:
+          dbname: invidious
+          user: invidious
+          password: 
+          host: invidious-pgbouncer
+          port: 5432
+        redis_socket: "/invidious/redis-server.sock"
+        redis_db: 4 
+        redis_auth: ""
+        http_proxy:
+          host: "192.42.6.30"
+          port: 80
+        check_tables: true
+        external_port: 443
+        domain: "invidious.nerdvpn.de"
+        https_only: true
+        hsts: true
+        pool_size: 60
+        disable_proxy: ["local"]
+        log_level: "Fatal"
+        popular_enabled: true
+        statistics_enabled: true
+        enable_user_notifications: false
+        channel_threads: 0
+        feed_threads: 0
+        use_pubsub_feeds: false
+        banner: "${BANNER_MSG}"
+        jobs:
+          clear_expired_items:
+            enable: false
+          refresh_channels:
+            enable: false
+          refresh_feeds:
+            enable: false 
+        default_user_preferences:
+          locale: "de"
+          region: "DE"
+          captions: ["","English","English (auto-generated)"]
+          dark_mode: "dark"
+          feed_menu: ["Trending", "Subscriptions", "Playlists", "Search"]
+          default_home: "Search"
+          comments: ["youtube", ""]
+          autoplay: true
+          continue_autoplay: true
+          quality: "hd720"
+          quality_dash: "720p"
+          unseen_only: true
+          local: false
+          automatic_instance_redirect: true
+    networks:
+      invidious_proxy:
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/${INV_HEALTHCHECK_URL} || exit 1
+      interval: 5m
+      retries: 2
+
+  # Takes care of refreshing the feeds
+  invidious_worker:
+    <<: *volumes
+    env_file:
+      - .env
+    profiles: ["worker"]
+    container_name: invidious_worker
+    cpus: ${INV_CPU_CORES}
+    mem_limit: "1536m"
+    mem_reservation: "768m"
+    image: "${INV_IMAGE}"
+    restart: "${INV_RESTART_POLICY}"
+    environment:
+      INVIDIOUS_CONFIG: |
+        #force_resolve: ipv6
+        modified_source_code_url: "https://github.com/Sommerwiesel/invidious-nerdvpn"
+        hmac_key: 
+        db:
+          dbname: invidious
+          user: invidious
+          password: 
+          host: invidious-pgbouncer
+          port: 5432
+        redis_socket: "/invidious/redis-server.sock"
+        redis_db: 4 
+        redis_auth: ""
+        http_proxy:
+          host: "192.42.6.30"
+          port: 80
+        check_tables: true
+        external_port: 443
+        domain: "invidious.nerdvpn.de"
+        https_only: true
+        hsts: true
+        pool_size: 100
+        disable_proxy: ["livestreams","local"]
+        log_level: "Fatal"
+        popular_enabled: true
+        statistics_enabled: true
+        enable_user_notifications: false
+        channel_threads: 4
+        feed_threads: 4
+        channel_refresh_interval: "15m"
+        use_pubsub_feeds: true
+        default_user_preferences:
+          locale: "de"
+          region: "DE"
+          captions: ["","English","English (auto-generated)"]
+          dark_mode: "dark"
+          feed_menu: ["Trending", "Subscriptions", "Playlists", "Search"]
+          default_home: "Search"
+          comments: ["youtube", ""]
+          autoplay: true
+          continue_autoplay: true
+          quality: "hd720"
+          quality_dash: "720p"
+          unseen_only: true
+          local: false
+          automatic_instance_redirect: true
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.9
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/${INV_HEALTHCHECK_URL} || exit 1
+      interval: 3m
+      timeout: 5s
+      retries: 2
+
+  invidious_1:
+    <<: *volumes
+    env_file:
+      - .env
+    profiles: ["web"]
+    container_name: invidious_1
+    cpus: ${INV_CPU_CORES}
+    mem_limit: "${INV_MEM_LIMIT}"
+    mem_reservation: "${INV_MEM_RESERVATION}"
+    image: "${INV_IMAGE}"
+    restart: "${INV_RESTART_POLICY}"
+    environment:
+      <<: *environment
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.2
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/${INV_HEALTHCHECK_URL} || exit 1
+      interval: 5m
+      timeout: 5s
+      retries: 2
+      
+  invidious_2:
+    <<: *volumes
+    env_file:
+      - .env
+    profiles: ["web"]
+    container_name: invidious_2
+    cpus: ${INV_CPU_CORES}
+    mem_limit: "${INV_MEM_LIMIT}"
+    mem_reservation: "${INV_MEM_RESERVATION}"
+    image: "${INV_IMAGE}"
+    restart: "${INV_RESTART_POLICY}"
+    environment:
+      <<: *environment
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.3
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/${INV_HEALTHCHECK_URL} || exit 1
+      interval: 5m
+      timeout: 5s
+      retries: 2
+      
+  invidious_3:
+    <<: *volumes
+    env_file:
+      - .env
+    profiles: ["web"]
+    container_name: invidious_3
+    cpus: ${INV_CPU_CORES}
+    mem_limit: "${INV_MEM_LIMIT}"
+    mem_reservation: "${INV_MEM_RESERVATION}"
+    image: "${INV_IMAGE}"
+    restart: "${INV_RESTART_POLICY}"
+    environment:
+      <<: *environment
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.4
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/${INV_HEALTHCHECK_URL} || exit 1
+      interval: 5m
+      timeout: 5s
+      retries: 2
+      
+  invidious_4:
+    <<: *volumes
+    env_file:
+      - .env
+    profiles: ["web"]
+    container_name: invidious_4
+    cpus: ${INV_CPU_CORES}
+    mem_limit: "${INV_MEM_LIMIT}"
+    mem_reservation: "${INV_MEM_RESERVATION}"
+    image: "${INV_IMAGE}"
+    restart: "${INV_RESTART_POLICY}"
+    environment:
+      <<: *environment
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.5
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/${INV_HEALTHCHECK_URL} || exit 1
+      interval: 5m
+      timeout: 5s
+      retries: 2
+      
+  invidious_5:
+    <<: *volumes
+    env_file:
+      - .env
+    profiles: ["web"]
+    container_name: invidious_5
+    cpus: ${INV_CPU_CORES}
+    mem_limit: "${INV_MEM_LIMIT}"
+    mem_reservation: "${INV_MEM_RESERVATION}"
+    image: "${INV_IMAGE}"
+    restart: "${INV_RESTART_POLICY}"
+    environment:
+      <<: *environment
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.6
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/${INV_HEALTHCHECK_URL} || exit 1
+      interval: 5m
+      timeout: 5s
+      retries: 2
+      
+  invidious_6:
+    <<: *volumes
+    env_file:
+      - .env
+    profiles: ["web"]
+    container_name: invidious_6
+    cpus: ${INV_CPU_CORES}
+    mem_limit: "${INV_MEM_LIMIT}"
+    mem_reservation: "${INV_MEM_RESERVATION}"
+    image: "${INV_IMAGE}"
+    restart: "${INV_RESTART_POLICY}"
+    environment:
+      <<: *environment
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.7
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/${INV_HEALTHCHECK_URL} || exit 1
+      interval: 5m
+      timeout: 5s
+      retries: 2
+  
+  materialious:
+    env_file:
+      - .env
+    profiles: ["materialious"]
+    container_name: materialious
+    cpus: "2"
+    mem_reservation: "32m"
+    mem_limit: "64m"
+    image: "wardpearce/materialious"
+    restart: "unless-stopped"
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.13
+  
+  # Return YouTube Dislike proxy via tor
+  materialious_ryd-proxy:
+    profiles: ["materialious"]
+    container_name: materialious_ryd-proxy
+    image: 1337kavin/ryd-proxy:latest
+    restart: "unless-stopped"
+    cpus: "2"
+    mem_reservation: "128m"
+    mem_limit: "256m"
+    depends_on:
+      - materialious_tor
+    environment:
+      - PROXY=socks5://materialious_tor:5566
+      - WEB_CONCURRENCY=3
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.14
+
+  materialious_api:
+    profiles: ["materialious"]
+    container_name: materialious_api
+    image: wardpearce/invidious_api_extended:latest
+    restart: "unless-stopped"
+    cpus: "3"
+    mem_reservation: "192m"
+    mem_limit: "320m"
+    environment:
+      api_extended_postgre: '{"host": "invidious-db", "port": 5432, "database": "invidious", "user": "invidious", "password": ""}'
+      api_extended_allowed_origins: '["https://materialious.nerdvpn.de"]'
+      api_extended_debug: false
+      api_extended_invidious_instance: "https://api.invidious.nerdvpn.de"
+      api_extended_production_instance: "https://sync.invidious.nerdvpn.de"
+      WEB_CONCURRENCY: 3
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.15
+
+  # Opens tor circuits
+  materialious_tor:
+    profiles: ["materialious"]
+    container_name: materialious_tor
+    image: 1337kavin/alpine-tor:latest
+    restart: "unless-stopped"
+    cpus: "2"
+    mem_reservation: "128m"
+    mem_limit: "256m"
+    environment:
+      - tors=2
+      - test_url="http://nerdvpn2awosmfgodp77bavzve3k2kvxw52z364suglul2qaalcdqtad.onion"
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.20
+  
+  materialious_peerjs:
+    profiles: ["materialious"]
+    container_name: materialious_peerjs
+    build:
+      context: peerjs
+      dockerfile: Dockerfile
+    restart: "unless-stopped"
+    cpus: "2"
+    mem_reservation: "32m"
+    mem_limit: "128m"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.19
+
+  invidious_tor:
+    <<: *volumes
+    env_file:
+      - .env
+    profiles: ["tor"]
+    container_name: invidious_tor
+    cpus: ${INV_CPU_CORES}
+    mem_limit: "512m"
+    mem_reservation: "128m"
+    image: "${INV_IMAGE}"
+    restart: "${INV_RESTART_POLICY}"
+    environment:
+      INVIDIOUS_CONFIG: |
+        force_resolve: ipv6
+        modified_source_code_url: "https://github.com/Sommerwiesel/invidious-nerdvpn"
+        hmac_key: 
+        db:
+          dbname: invidious
+          user: invidious
+          password: 
+          host: invidious-pgbouncer
+          port: 5432
+        redis_socket: "/invidious/redis-server.sock"
+        redis_db: 4 
+        redis_auth: ""
+        http_proxy:
+          host: "192.42.6.30"
+          port: 80
+        check_tables: true
+        external_port: 80
+        domain: "jt3wafuew7rumgwp7wfixpbtxc4dw6jvvfjt7dud33xczvwvgih5nfqd.onion"
+        https_only: false
+        hsts: false
+        pool_size: 40
+        disable_proxy: ["livestreams","local","dash","downloads"]
+        log_level: "Fatal"
+        popular_enabled: false
+        statistics_enabled: true
+        enable_user_notifications: false
+        channel_threads: 0
+        feed_threads: 0
+        use_pubsub_feeds: false
+        jobs:
+          clear_expired_items:
+            enable: false
+          refresh_channels:
+            enable: false
+          refresh_feeds:
+            enable: false 
+        default_user_preferences:
+          locale: "de"
+          region: "DE"
+          captions: ["","English","English (auto-generated)"]
+          dark_mode: "dark"
+          feed_menu: ["Trending", "Subscriptions", "Playlists", "Search"]
+          default_home: "Search"
+          comments: ["youtube", ""]
+          autoplay: true
+          continue_autoplay: true
+          quality: "hd720"
+          quality_dash: "720p"
+          unseen_only: true
+          local: false
+          automatic_instance_redirect: false
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.8
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/${INV_HEALTHCHECK_URL} || exit 1
+      interval: 5m
+      timeout: 5s
+      retries: 2
+
+  invidious-pgbouncer:
+    env_file:
+      - .env
+    profiles: ["database"]
+    container_name: invidious-pgbouncer
+    mem_limit: "128m"
+    mem_reservation: "64m"
+    image: edoburu/pgbouncer
+    restart: "${INV_RESTART_POLICY}"
+    environment:
+      - DB_HOST=invidious-db
+      - DB_PORT=5432
+      - DB_USER=invidious
+      - DB_PASSWORD=
+      - DB_NAME=invidious
+      - ADMIN_USERS=pgbouncer
+      - POOL_MODE=transaction
+      - DEFAULT_POOL_SIZE=80
+      - MIN_POOL_SIZE=20
+      - RESERVE_POOL_SIZE=80
+      - RESERVE_POOL_TIMEOUT=5
+      - MAX_DB_CONNECTIONS=160
+      - MAX_USER_CONNECTIONS=160
+      - MAX_CLIENT_CONN=1000
+      - AUTH_TYPE=scram-sha-256
+      - IGNORE_STARTUP_PARAMETERS=extra_float_digits
+    volumes:
+      - ./docker/userlist.txt:/etc/pgbouncer/userlist.txt:rw
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h invidious-db"]
+      interval: 5m
+      timeout: 15s
+      retries: 2
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.11
+
+  invidious-db:
+    env_file:
+      - .env
+    profiles: ["database"]
+    container_name: invidious-db
+    cpus: ${INV_PSQL_CPU_CORES}
+    mem_limit: "${INV_PSQL_MEM_LIMIT}"
+    memswap_limit: "${INV_PSQL_MEM_LIMIT}"
+    mem_reservation: "${INV_PSQL_MEM_RESERVATION}"
+    image: "${INV_PSQL_IMAGE}"
+    restart: "${INV_RESTART_POLICY}"
+    volumes:
+      - type: bind
+        source: /srv/invidious/database
+        target: /var/lib/postgresql/data
+      - ./config/sql:/config/sql
+      - ./docker/init-invidious-db.sh:/docker-entrypoint-initdb.d/init-invidious-db.sh
+      - ./docker/pg-tune.sql:/docker-entrypoint-initdb.d/pg-tune.sql
+      - ./docker/pgstat.sql:/tmp/pgstat.sql
+      - ./docker/pg-cleanup.sql:/tmp/pgcleanup.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5m
+      timeout: 15s
+      retries: 2
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.10
+
+  invidious-proxy:
+    profiles: ["web"]
+    image: 1337kavin/ytproxy:latest
+    container_name: invidious_proxy
+    cpus: "4"
+    mem_reservation: "256m"
+    mem_limit: "512m"
+    restart: "unless-stopped"
+    user: 33:33
+    network_mode: "host"
+    environment:
+     - DISABLE_WEBP=1
+    volumes:
+     - /srv/ytproxy:/app/socket
+
+  invidious-haproxy:
+    profiles: ["web"]
+    image: haproxytech/haproxy-alpine:latest
+    container_name: invidious_haproxy
+    cpus: "3"
+    mem_reservation: "64m"
+    mem_limit: "128m"
+    restart: "unless-stopped"
+    volumes:
+      - ./docker/haproxy:/usr/local/etc/haproxy:ro
+    networks:
+      invidious_proxy:
+        ipv4_address: 192.42.6.30
+
+
+networks:
+  invidious_proxy:
+    external: true

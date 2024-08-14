@@ -1,0 +1,18 @@
+[Unit]
+Description=Invidious (%i)
+After=syslog.target
+After=network.target
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+RestartSec=15s
+User=invidious
+Group=invidious
+WorkingDirectory=/srv/invidious
+ExecStart=/usr/bin/docker compose --env-file .env --profile %i up
+ExecStop=/usr/bin/docker compose --env-file .env --profile %i down
+
+[Install]
+WantedBy=multi-user.target

@@ -69,7 +69,7 @@ index 3804197e..e2d40597 100644
  
 -PG_DB       = DB.open CONFIG.database_url
 +PG_DB    = DB.open CONFIG.database_url
-+REDIS_DB = Redis::PooledClient.new(unixsocket: CONFIG.redis_socket || nil, url: CONFIG.redis_url || nil)
++REDIS_DB = Redis::PooledClient.new(unixsocket: CONFIG.redis_socket || nil, url: CONFIG.redis_url || nil, database: CONFIG.redis_db || 0, password: CONFIG.redis_auth || nil)
 +
 +if REDIS_DB.ping
 +  puts "Connected to redis"
@@ -81,12 +81,14 @@ diff --git a/src/invidious/config.cr b/src/invidious/config.cr
 index c4ddcdb3..5b6c576c 100644
 --- a/src/invidious/config.cr
 +++ b/src/invidious/config.cr
-@@ -77,6 +77,9 @@ class Config
+@@ -77,6 +77,11 @@ class Config
    # Used for crawling channels: threads should check all videos uploaded by a channel
    property full_refresh : Bool = false
  
 +  property redis_url : String?
 +  property redis_socket : String?
++  property redis_auth : String?
++  property redis_db : Int32?
 +
    # Jobs config structure. See jobs.cr and jobs/base_job.cr
    property jobs = Invidious::Jobs::JobsConfig.new
