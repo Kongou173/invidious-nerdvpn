@@ -64,7 +64,7 @@ index 00000000..0c7deecc
 +<div class="h-box">
 +    <h2>Donate to NerdVPN.de</h2>
 +    <h3>Why donating?</h3>
-+    <p>In order to provide the best Invidious experience possible, I have rented a very powerful dedicated server with 16 cores, 32 GiB RAM and a 2 GBit/s unmetered network connection. I also use 3 different, fully e2e-encrypted backup locations with a zero-dataloss backup strategy. All of this has its cost.</p>
++    <p>In order to provide the best Invidious experience possible, I have rented a very powerful dedicated server with 16 cores, 48 GiB RAM and a 2 GBit/s unmetered network connection. I also use 3 different, fully e2e-encrypted backup locations with live replication and a zero-dataloss backup strategy. All of this has its cost.</p>
 +    <p>All donations will go directly into paying my monthly infrastructure costs (server, domain, backups).</p>
 +    <p>Should the donations at any point fully cover the costs, I will invest the remaining directly into improving my infrastructure and thus improving the user experience.</p>
 +    <p>Every little bit helps. Thank you very much for considering to donate!</p>
