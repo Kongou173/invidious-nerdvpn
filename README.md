@@ -7,6 +7,10 @@ Original repo at: https://github.com/iv-org/invidious
 
 Based upon patches from: https://github.com/yewtudotbe/invidious-custom
 
+# IMPORTANT
+The instructions below are outdated.
+YouTube is currently quadrupling down on trying to block Invidious instances, so there are almost daily changes to my server setup.
+I haven't found the time yet to provide new/better instructions, so the instructions below should be taken with some grain of salt.
 
 # Build instructions
 
